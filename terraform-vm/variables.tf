@@ -1,49 +1,55 @@
 variable "instance_name" {
   description = "Name of the compute instance"
   type        = string
-  default     = "test-instance-20260304-190348"
+  default     = "instance-20260311-095319"
 }
 
-variable "boot_disk_image" {
-  description = "Boot disk image for the compute instance"
+variable "disk_image" {
+  description = "Boot disk image for the instance"
   type        = string
-  default     = "projects/debian-cloud/global/images/debian-12-bookworm-v20260210"
+  default     = "projects/debian-cloud/global/images/debian-12-bookworm-v20260310"
 }
 
-variable "boot_disk_size" {
+variable "disk_size" {
   description = "Boot disk size in GB"
   type        = number
   default     = 10
 }
 
-variable "boot_disk_type" {
+variable "disk_type" {
   description = "Boot disk type"
   type        = string
   default     = "pd-balanced"
 }
 
 variable "machine_type" {
-  description = "Machine type for the compute instance"
+  description = "Machine type for the instance"
   type        = string
   default     = "e2-micro"
 }
 
 variable "zone" {
-  description = "Zone where the instance will be deployed"
+  description = "GCP zone where the instance will be created"
   type        = string
-  default     = "asia-south1-a"
+  default     = "asia-south1-c"
 }
 
 variable "project_id" {
-  description = "GCP Project ID"
+  description = "GCP project ID"
   type        = string
   default     = "divine-ceremony-167109"
 }
 
 variable "region" {
-  description = "GCP region for the subnetwork"
+  description = "GCP region"
   type        = string
   default     = "asia-south1"
+}
+
+variable "subnetwork" {
+  description = "Subnetwork self-link for the network interface"
+  type        = string
+  default     = "projects/divine-ceremony-167109/regions/asia-south1/subnetworks/default"
 }
 
 variable "network_tier" {
@@ -52,20 +58,14 @@ variable "network_tier" {
   default     = "PREMIUM"
 }
 
-variable "stack_type" {
-  description = "Stack type for the network interface"
-  type        = string
-  default     = "IPV4_ONLY"
-}
-
 variable "service_account_email" {
-  description = "Service account email for the compute instance"
+  description = "Service account email for the instance"
   type        = string
   default     = "992070314277-compute@developer.gserviceaccount.com"
 }
 
 variable "service_account_scopes" {
-  description = "List of service account scopes"
+  description = "List of OAuth scopes for the service account"
   type        = list(string)
   default = [
     "https://www.googleapis.com/auth/devstorage.read_only",
@@ -77,10 +77,16 @@ variable "service_account_scopes" {
   ]
 }
 
+variable "startup_script" {
+  description = "Startup script to run on instance boot"
+  type        = string
+  default     = "#! /bin/bash\napt update\napt -y install apache2\ncat <<EOF > /var/www/html/index.html\n<html><body><p>Linux startup script added directly.</p></body></html>\nEOF"
+}
+
 variable "tags" {
-  description = "Network tags for the instance"
+  description = "Network tags to apply to the instance"
   type        = list(string)
-  default     = ["allow-web-traffic"]
+  default     = ["http-server", "https-server"]
 }
 
 variable "labels" {
@@ -92,37 +98,49 @@ variable "labels" {
 }
 
 variable "can_ip_forward" {
-  description = "Whether to allow IP forwarding"
+  description = "Whether to allow IP forwarding on the instance"
   type        = bool
   default     = false
 }
 
 variable "deletion_protection" {
-  description = "Whether deletion protection is enabled"
+  description = "Enable deletion protection on the instance"
   type        = bool
   default     = false
 }
 
 variable "enable_display" {
-  description = "Whether to enable display"
+  description = "Enable virtual display on the instance"
   type        = bool
   default     = false
 }
 
-variable "enable_secure_boot" {
-  description = "Whether to enable secure boot"
+variable "automatic_restart" {
+  description = "Whether the instance should be automatically restarted"
   type        = bool
   default     = true
 }
 
-variable "enable_vtpm" {
-  description = "Whether to enable vTPM"
-  type        = bool
-  default     = true
+variable "on_host_maintenance" {
+  description = "Defines the maintenance behavior for the instance"
+  type        = string
+  default     = "MIGRATE"
 }
 
 variable "enable_integrity_monitoring" {
-  description = "Whether to enable integrity monitoring"
+  description = "Enable integrity monitoring for shielded instance"
+  type        = bool
+  default     = true
+}
+
+variable "enable_secure_boot" {
+  description = "Enable secure boot for shielded instance"
+  type        = bool
+  default     = false
+}
+
+variable "enable_vtpm" {
+  description = "Enable vTPM for shielded instance"
   type        = bool
   default     = true
 }

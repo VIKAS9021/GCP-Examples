@@ -4,15 +4,18 @@ provider "google" {
   region  = var.region
 }
 
-resource "google_compute_instance" "instance-20260304-190348" {
+# This code is compatible with Terraform 4.25.0 and versions that are backwards compatible to 4.25.0.
+# For information about validating this Terraform code, see https://developer.hashicorp.com/terraform/tutorials/gcp-get-started/google-cloud-platform-build#format-and-validate-the-configuration
+
+resource "google_compute_instance" "instance-20260311-095319" {
   boot_disk {
     auto_delete = true
     device_name = var.instance_name
 
     initialize_params {
-      image = var.boot_disk_image
-      size  = var.boot_disk_size
-      type  = var.boot_disk_type
+      image = var.disk_image
+      size  = var.disk_size
+      type  = var.disk_type
     }
 
     mode = "READ_WRITE"
@@ -25,7 +28,12 @@ resource "google_compute_instance" "instance-20260304-190348" {
   labels = var.labels
 
   machine_type = var.machine_type
-  name         = var.instance_name
+
+  metadata = {
+    startup-script = var.startup_script
+  }
+
+  name = var.instance_name
 
   network_interface {
     access_config {
@@ -33,13 +41,13 @@ resource "google_compute_instance" "instance-20260304-190348" {
     }
 
     queue_count = 0
-    stack_type  = var.stack_type
-    subnetwork  = "projects/${var.project_id}/regions/${var.region}/subnetworks/default"
+    stack_type  = "IPV4_ONLY"
+    subnetwork  = var.subnetwork
   }
 
   scheduling {
-    automatic_restart   = true
-    on_host_maintenance = "MIGRATE"
+    automatic_restart   = var.automatic_restart
+    on_host_maintenance = var.on_host_maintenance
     preemptible         = false
     provisioning_model  = "STANDARD"
   }
